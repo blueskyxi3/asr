@@ -1,0 +1,36 @@
+x-asr: &asr
+  image: ai-hub-asr:${ASR_VERSION:-0.1.0}
+  build: .
+
+services:
+  model-prepare:
+    <<: *asr
+    profiles: [prepare]
+    command: [node, dist/src/prepare-models.js]
+    environment:
+      ASR_MODEL_DIR: /models
+      ASR_MODEL_ORIGIN: ${ASR_MODEL_ORIGIN:-https://huggingface.co}
+    volumes:
+      - asr-models:/models
+
+  asr:
+    <<: *asr
+    restart: unless-stopped
+    environment:
+      ASR_API_KEY: ${ASR_API_KEY:?Set a service token with at least 32 characters}
+      ASR_MODEL_DIR: /models
+      ASR_THREADS: ${ASR_THREADS:-2}
+      ASR_WORKERS: ${ASR_WORKERS:-1}
+      ASR_MAX_QUEUE: ${ASR_MAX_QUEUE:-4}
+      ASR_QUEUE_TIMEOUT_MS: ${ASR_QUEUE_TIMEOUT_MS:-10000}
+      ASR_INFERENCE_TIMEOUT_MS: ${ASR_INFERENCE_TIMEOUT_MS:-120000}
+    expose: ["8000"]
+    volumes:
+      - asr-models:/models:ro
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    stop_grace_period: 15s
+
+volumes:
+  asr-models:

@@ -1,0 +1,22 @@
+{
+  "name": "ai-hub-asr",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/src/main.js",
+    "prepare-models": "node dist/src/prepare-models.js",
+    "test": "npm run build && node --test dist/tests/*.test.js",
+    "test:model": "npm run build && node --test dist/tests/model.smoke.js",
+    "benchmark": "node dist/src/benchmark.js"
+  },
+  "dependencies": {
+    "@fastify/multipart": "9.3.0",
+    "fastify": "5.12.7",
+    "sherpa-onnx-node": "1.13.8"
+  },
+  "devDependencies": { "@types/node": "22.19.15", "typescript": "5.9.3" }
+}

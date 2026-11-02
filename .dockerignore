@@ -1,0 +1,7 @@
+node_modules
+dist
+models
+tests
+.env
+.git
+benchmark-results.json
