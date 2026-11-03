@@ -9,19 +9,19 @@
 `deployment.yaml` 的 initContainer 和服务容器均使用：
 
 ```text
-ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.2.0
+ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.0.1
 ```
 
 安装前确保这个镜像已推送且集群可拉取；使用其他仓库时同时修改两处 `image`。需要自行构建时：
 
 ```bash
-export ASR_IMAGE=ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.2.0
+export ASR_IMAGE=ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.0.1
 docker buildx build --platform linux/amd64,linux/arm64 -t "$ASR_IMAGE" --push .
 ```
 
 构建上下文必须为 ASR 仓库根目录。私有镜像仓库需要在 Pod 的 `spec.template.spec.imagePullSecrets` 配置同 namespace 中已有的拉取凭据。
 
-`pvc.yaml` 申请 2 GiB、`ReadWriteOnce` 模型存储，默认使用集群的默认 StorageClass。没有默认 StorageClass 时，先按集群情况填写 `storageClassName`；项目使用 `ebs-ssd` 的集群可取消对应注释。存储需支持 `fsGroup: 1000`，以便非 root 的模型准备容器写入。服务容器申请 2 CPU / 2 GiB，限制 4 CPU / 4 GiB，节点须有相应可用资源。
+`pvc.yaml` 申请 2 GiB、`ReadWriteOnce` 模型存储，显式使用 PoC 集群现有的 `ebs-ssd` StorageClass；该集群没有默认 StorageClass。安装到其他集群时，先将 `storageClassName` 改为目标集群可用的存储类。存储需支持 `fsGroup: 1000`，以便非 root 的模型准备容器写入。服务容器申请 2 CPU / 2 GiB，限制 4 CPU / 4 GiB，节点须有相应可用资源。
 
 ## 2. 创建 namespace 和密钥
 

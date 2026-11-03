@@ -1,6 +1,6 @@
 # ASR
 
-完整独立的语音转文字与浏览器语音控制子项目。使用 SenseVoiceSmall INT8、Silero VAD 和 sherpa-onnx，在 Linux amd64/arm64 CPU 上运行。支持普通话、粤语、英语、日语、韩语及自动识别；录音停止后返回整段文字。0.2.0 增加浏览器本地 KWS 唤醒、VAD 分段与退出口令匹配 SDK。
+完整独立的语音转文字与浏览器语音控制子项目。使用 SenseVoiceSmall INT8、Silero VAD 和 sherpa-onnx，在 Linux amd64/arm64 CPU 上运行。支持普通话、粤语、英语、日语、韩语及自动识别；录音停止后返回整段文字。独立仓库从 0.0.1 起发布，包含浏览器本地 KWS 唤醒、VAD 分段与退出口令匹配 SDK。
 
 本项目独立安装、构建、测试和部署，不依赖 AI Hub、Agent SDK、数据库或 Redis。模型在常驻子进程中运行，HTTP 主进程负责认证、输入校验、排队及取消。源码与 Agent 的 npm workspaces、process 安装包相互独立。
 
@@ -58,14 +58,14 @@ ASR_API_KEY=your-random-service-token-at-least-32-characters npm start
 独立构建镜像：
 
 ```bash
-docker build -t ai-hub-asr:0.2.0 .
+docker build -t ai-hub-asr:0.0.1 .
 ```
 
 发布双架构镜像时，在已配置的目标仓库使用：
 
 ```bash
 docker buildx build --platform linux/amd64,linux/arm64 \
-  -t "$ASR_IMAGE_REPOSITORY:0.2.0" --push .
+  -t "$ASR_IMAGE_REPOSITORY:0.0.1" --push .
 ```
 
 构建上下文仅为当前目录，目标平台依赖在对应镜像内安装，不复制宿主机的 `node_modules`。
@@ -175,7 +175,7 @@ ASR_API_KEY=your-service-token ASR_URL=http://127.0.0.1:18080 \
 
 仓库内 `tests/container-smoke.mjs` 可挂载到运行镜像的 `/app/tests/`，配合只读 `/models`、`/samples`（含 `zh.wav`、`samples.json` 和样本）在 `--network none` 环境验证真实 HTTP、模型推理及性能。
 
-## 浏览器本地唤醒与自动语音对话（0.2.0）
+## 浏览器本地唤醒与自动语音对话
 
 浏览器 SDK 和 ASR HTTP 服务属于同一独立子项目，但推理位置不同：
 
@@ -204,7 +204,7 @@ npm run prepare-models
 npm run prepare-voice
 
 # Compose：镜像构建包含 WASM，model-prepare 同时准备 ASR 与唤醒模型
-# 已有 .env 时只更新 ASR_VERSION=0.2.0，保留 ASR_API_KEY
+# 已有 .env 时只更新 ASR_VERSION=0.0.1，保留 ASR_API_KEY
 docker compose build
 docker compose run --rm model-prepare
 docker compose -f docker-compose.yml -f docker-compose.local.yml up -d asr

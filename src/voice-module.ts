@@ -5,7 +5,7 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import { AsrError } from "./errors.js";
 import { browserDirectory, voiceFilesReady, voiceLock } from "./voice-assets.js";
 
-export const voiceManifest = { id: "asr", name: "本地语音服务", version: "0.2.0", sdk_version: 2,
+export const voiceManifest = { id: "asr", name: "本地语音服务", version: "0.0.1", sdk_version: 2,
   extensions: ["assistant.voice.control"], entry: "/assets/plugin.js", backend: "asr" };
 const equal = (left: string, right: string) => { const a = Buffer.from(left), b = Buffer.from(right); return a.length === b.length && timingSafeEqual(a, b); };
 export function isVoiceRoute(url: string): boolean { return /^\/(assets\/|internal\/|(?:api\/)?v1\/voice\/)/.test(url); }

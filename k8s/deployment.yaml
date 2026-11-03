@@ -47,7 +47,7 @@ spec:
       initContainers:
         - name: model-prepare
           # 与下面 asr 容器使用同一镜像，替换或升级时两处一起修改。
-          image: ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.2.0
+          image: ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.0.1
           imagePullPolicy: IfNotPresent
           command: [node, dist/src/prepare-models.js]
           env:
@@ -76,7 +76,7 @@ spec:
               memory: 1Gi
       containers:
         - name: asr
-          image: ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.2.0
+          image: ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
