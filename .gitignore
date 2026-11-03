@@ -3,3 +3,5 @@ dist/
 models/
 .env
 benchmark-results.json
+.cache/
+browser-dist/

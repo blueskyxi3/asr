@@ -1,22 +1,33 @@
 {
   "name": "ai-hub-asr",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/build-browser.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node dist/src/main.js",
     "prepare-models": "node dist/src/prepare-models.js",
-    "test": "npm run build && node --test dist/tests/*.test.js",
+    "test": "npm run build && node --test dist/tests/*.test.js browser/*.test.mjs",
     "test:model": "npm run build && node --test dist/tests/model.smoke.js",
-    "benchmark": "node dist/src/benchmark.js"
+    "benchmark": "node dist/src/benchmark.js",
+    "prepare-voice": "node dist/src/prepare-voice.js",
+    "build:wasm": "docker build -f Dockerfile.wasm --output type=local,dest=browser-dist .",
+    "test:browser": "npm run build && node --test tests/voice.browser.mjs"
   },
   "dependencies": {
     "@fastify/multipart": "9.3.0",
     "fastify": "5.12.7",
+    "pinyin-pro": "3.27.0",
     "sherpa-onnx-node": "1.13.8"
   },
-  "devDependencies": { "@types/node": "22.19.15", "typescript": "5.9.3" }
+  "devDependencies": {
+    "@types/node": "22.19.15",
+    "esbuild": "0.25.12",
+    "playwright": "1.62.1",
+    "typescript": "5.9.3"
+  }
 }

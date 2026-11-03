@@ -1,0 +1,89 @@
+{
+  "model": "sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20",
+  "license": "Apache-2.0",
+  "license_snapshot": "licenses/KWS-LICENSE",
+  "package": {
+    "url": "https://registry.npmjs.org/dsh-orb-kws/-/dsh-orb-kws-2026.10.0.tgz",
+    "bytes": 9024132,
+    "sha256": "23d4055c0c20b9d440ab47aa05965780aba01e6852a2182987cca479ea91e9d3"
+  },
+  "source": {
+    "url": "https://codeload.github.com/k2-fsa/sherpa-onnx/tar.gz/refs/tags/v1.13.8",
+    "sha256": "b0374cc56dbc186d442ae73d5de743bb092470b640c4c50ce7b029044c0c4fa8",
+    "emscripten": "4.0.23",
+    "license": "Apache-2.0",
+    "license_source": "https://github.com/k2-fsa/sherpa-onnx/blob/v1.13.8/LICENSE",
+    "license_snapshot": "licenses/sherpa-onnx-LICENSE"
+  },
+  "files": [
+    {
+      "name": "decoder-epoch-13-avg-2-chunk-16-left-64.onnx",
+      "bytes": 759829,
+      "sha256": "63a22dd60f40fff082ac3e09afa507f6787da36df76ded2fbe145fa233e22c21"
+    },
+    {
+      "name": "decoder-epoch-13-avg-2-chunk-8-left-64.onnx",
+      "bytes": 759829,
+      "sha256": "63a22dd60f40fff082ac3e09afa507f6787da36df76ded2fbe145fa233e22c21"
+    },
+    {
+      "name": "en.phone",
+      "bytes": 3330061,
+      "sha256": "f7000ec3a90544c0c7c16090d8951779c2b322e14dad5006290f498567d439ea"
+    },
+    {
+      "name": "encoder-epoch-13-avg-2-chunk-16-left-64.int8.onnx",
+      "bytes": 4599656,
+      "sha256": "408bbd740838c42d5bf6d1c5b80b3c88b616c7860b92d980328b5b068c76ae48"
+    },
+    {
+      "name": "encoder-epoch-13-avg-2-chunk-8-left-64.int8.onnx",
+      "bytes": 4600657,
+      "sha256": "2ca84d6bfe73e1ea3c9c49f600f7cad1c9ddd423c53c906b8bfe802444dd78d5"
+    },
+    {
+      "name": "joiner-epoch-13-avg-2-chunk-16-left-64.int8.onnx",
+      "bytes": 86629,
+      "sha256": "190d4067b4cc20b72a42a1916e69d92052000fb7051a427ebb1bc72a69207dc1"
+    },
+    {
+      "name": "joiner-epoch-13-avg-2-chunk-8-left-64.int8.onnx",
+      "bytes": 86629,
+      "sha256": "190d4067b4cc20b72a42a1916e69d92052000fb7051a427ebb1bc72a69207dc1"
+    },
+    {
+      "name": "tokens.txt",
+      "bytes": 1928,
+      "sha256": "2d3f32311f9b692b964da3c90e830258d3e78e013cb0c992dbfb15cd5a1a71b0"
+    },
+    {
+      "name": "silero_vad.onnx",
+      "license": "MIT",
+      "license_snapshot": "licenses/Silero-LICENSE",
+      "bytes": 1807522,
+      "sha256": "a35ebf52fd3ce5f1469b2a36158dba761bc47b973ea3382b3186ca15b1f5af28"
+    }
+  ],
+  "runtime": [
+    {
+      "name": "voice-runtime.js",
+      "bytes": 78938,
+      "sha256": "c184796a290187cac6e6be47b6044448f14cfdafb18382d9bdb70b2d73028fc4"
+    },
+    {
+      "name": "voice-runtime.wasm",
+      "bytes": 12793284,
+      "sha256": "a317573f8c8a1b66d479cc895a70ab90f3f83dad4b3dc7a00933f7987f86ea76"
+    },
+    {
+      "name": "sherpa-kws.js",
+      "bytes": 9969,
+      "sha256": "cf968975f5a46efea254fdd1067068b8132b06e0a08038d05298fb06c72069c5"
+    },
+    {
+      "name": "sherpa-vad.js",
+      "bytes": 7816,
+      "sha256": "9ea5bfc2dfe9752d52927c8bfe4f87aadf681b87fdabe8c5f0e63c9f10855899"
+    }
+  ]
+}

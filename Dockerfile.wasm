@@ -1,0 +1,8 @@
+# The compiler produces architecture-independent WASM; native ASR uses its own builder.
+FROM --platform=linux/amd64 emscripten/emsdk:4.0.23@sha256:86537645c51e44899812d29820ee3b64b96c321ebb2aba4416a04ceeb1bcde62 AS build
+WORKDIR /build
+COPY scripts/build-voice-wasm.py ./scripts/
+RUN --mount=type=cache,target=/build/.cache python3 scripts/build-voice-wasm.py
+
+FROM scratch AS artifacts
+COPY --from=build /build/browser-dist/ /

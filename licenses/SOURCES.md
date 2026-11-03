@@ -14,3 +14,10 @@ SenseVoiceSmall originates from FunAudioLLM/SenseVoiceSmall; the ONNX conversion
 is distributed by csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.
 Silero VAD originates from snakers4/silero-vad. Exact model revisions and hashes
 are recorded in models.lock.json. npm dependencies retain their packaged licenses.
+
+## Browser voice control (2026-11-02)
+
+- KWS-LICENSE and KWS-NOTICE.md are unmodified snapshots from `dsh-orb-kws@2026.10.0` (Apache-2.0). The upstream model is `sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20`, distributed at https://github.com/k2-fsa/sherpa-onnx/releases/tag/kws-models . The npm package redistributes byte-identical selected model files; its archive and every retained file are pinned in `voice-assets.lock.json`. Its original NOTICE refers to the original package layout.
+- The browser runtime and JavaScript KWS/VAD wrappers are built from https://github.com/k2-fsa/sherpa-onnx/tree/v1.13.8 (Apache-2.0), with source archive SHA-256 and output hashes in `voice-assets.lock.json`. `Dockerfile.wasm` pins the Emscripten compiler image; the runtime is built here rather than copied from the reference plugin.
+- pinyin-pro-LICENSE is from the `pinyin-pro@3.27.0` npm package (MIT, copyright zh-lx); upstream https://github.com/zh-lx/pinyin-pro . The npm lockfile pins the exact package and integrity.
+- Browser Silero VAD uses the same MIT-licensed, hash-verified file as server inference. Wake models are downloaded from npm by default, independently of the Hugging Face origins used for SenseVoice and Silero.

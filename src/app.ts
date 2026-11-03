@@ -5,6 +5,7 @@ import { languages, modelId, type Config } from "./config.js";
 import { AsrError } from "./errors.js";
 import type { RecognitionQueue } from "./recognizer.js";
 import { validateWave } from "./wave.js";
+import { authenticateVoice, isVoiceRoute, registerVoiceModule } from "./voice-module.js";
 
 export type RecognizerService = Pick<RecognitionQueue, "ready" | "transcribe" | "close">;
 
@@ -20,6 +21,7 @@ export async function buildApp(config: Config, recognizer: RecognizerService, lo
     reply.header("Cache-Control", "no-store");
     reply.header("X-Request-ID", request.id);
     if (request.url.split("?")[0] === "/healthz" || request.url.split("?")[0] === "/readyz") return;
+    if (isVoiceRoute(request.url)) { authenticateVoice(request, config.apiKey); return; }
     const received = Buffer.from(request.headers.authorization || "");
     const expected = Buffer.from(`Bearer ${config.apiKey}`);
     if (received.length !== expected.length || !timingSafeEqual(received, expected)) {
@@ -35,6 +37,7 @@ export async function buildApp(config: Config, recognizer: RecognizerService, lo
     if (!reply.raw.destroyed) reply.code(status).send({ error: { message: known ? error.message : status < 500 ? "Invalid transcription request" : "Recognition service failed", type: "asr_error", code } });
   });
   app.get("/healthz", () => ({ status: "ok" }));
+  await registerVoiceModule(app, config.modelDir);
   app.get("/readyz", async (_request, reply) => reply.code(recognizer.ready ? 200 : 503).send({ ready: recognizer.ready }));
   app.get("/v1/models", () => ({ object: "list", data: [{ id: modelId, object: "model", created: 0, owned_by: "self-hosted" }] }));
   app.post("/v1/audio/transcriptions", async (request, reply) => {

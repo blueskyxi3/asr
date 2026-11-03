@@ -5,3 +5,5 @@ tests
 .env
 .git
 benchmark-results.json
+.cache
+browser-dist

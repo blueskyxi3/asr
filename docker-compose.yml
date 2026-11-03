@@ -1,5 +1,5 @@
 x-asr: &asr
-  image: ai-hub-asr:${ASR_VERSION:-0.1.0}
+  image: ai-hub-asr:${ASR_VERSION:-0.2.0}
   build: .
 
 services:
@@ -10,6 +10,8 @@ services:
     environment:
       ASR_MODEL_DIR: /models
       ASR_MODEL_ORIGIN: ${ASR_MODEL_ORIGIN:-https://huggingface.co}
+      ASR_PREPARE_VOICE: "true"
+      ASR_KWS_MODEL_ORIGIN: ${ASR_KWS_MODEL_ORIGIN:-https://registry.npmjs.org}
     volumes:
       - asr-models:/models
 
@@ -18,6 +20,7 @@ services:
     restart: unless-stopped
     environment:
       ASR_API_KEY: ${ASR_API_KEY:?Set a service token with at least 32 characters}
+      ASR_HOST_SECRET: ${ASR_HOST_SECRET:-}
       ASR_MODEL_DIR: /models
       ASR_THREADS: ${ASR_THREADS:-2}
       ASR_WORKERS: ${ASR_WORKERS:-1}

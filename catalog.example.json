@@ -1,0 +1,16 @@
+{
+  "manifest": {
+    "id": "asr",
+    "name": "本地语音服务",
+    "version": "0.2.0",
+    "sdk_version": 2,
+    "extensions": ["assistant.voice.control"],
+    "entry": "/assets/plugin.js",
+    "backend": "asr"
+  },
+  "description": "浏览器本地语音唤醒与 VAD，停顿后自动转写并回复，支持口令退出。",
+  "modes": ["external"],
+  "external_url": "http://127.0.0.1:18080",
+  "secret_env": "ASR_HOST_SECRET",
+  "env_prefix": "ASR"
+}
