@@ -9,6 +9,8 @@
     "backend": "asr"
   },
   "description": "浏览器本地语音唤醒与 VAD，停顿后自动转写并回复，支持口令退出。",
+  "logo": "https://raw.githubusercontent.com/blueskyxi3/asr/main/plugin-logos/asr.png",
+  "background": "https://raw.githubusercontent.com/blueskyxi3/asr/main/plugin-backgrounds/asr.png",
   "modes": ["external"],
   "external_url": "http://127.0.0.1:18080",
   "secret_env": "ASR_HOST_SECRET",
