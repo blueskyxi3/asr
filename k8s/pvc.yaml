@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-hub-asr-models
+  labels:
+    app.kubernetes.io/name: ai-hub-asr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  # 使用集群默认 StorageClass；无默认值时按实际情况指定，例如 ebs-ssd。
+  # storageClassName: ebs-ssd

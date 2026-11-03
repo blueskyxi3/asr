@@ -1,0 +1,146 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-hub-asr
+  labels:
+    app.kubernetes.io/name: ai-hub-asr
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: ai-hub-asr
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-hub-asr
+  labels:
+    app.kubernetes.io/name: ai-hub-asr
+spec:
+  replicas: 1
+  # 升级时先停止旧 Pod，再启动新 Pod，避免同时加载两份模型及争用模型卷。
+  strategy:
+    type: Recreate
+  # 首次下载 ASR 和唤醒模型可能较慢。
+  progressDeadlineSeconds: 5400
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ai-hub-asr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ai-hub-asr
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 15
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: model-prepare
+          # 与下面 asr 容器使用同一镜像，替换或升级时两处一起修改。
+          image: ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.2.0
+          imagePullPolicy: IfNotPresent
+          command: [node, dist/src/prepare-models.js]
+          env:
+            - name: ASR_MODEL_DIR
+              value: /models
+            - name: ASR_MODEL_ORIGIN
+              value: https://huggingface.co
+            - name: ASR_PREPARE_VOICE
+              value: "true"
+            - name: ASR_KWS_MODEL_ORIGIN
+              value: https://registry.npmjs.org
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      containers:
+        - name: asr
+          image: ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.2.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: ASR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-hub-asr
+                  key: ASR_API_KEY
+            - name: ASR_HOST_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ai-hub-asr
+                  key: ASR_HOST_SECRET
+                  optional: true
+            - name: ASR_MODEL_DIR
+              value: /models
+            - name: ASR_THREADS
+              value: "2"
+            - name: ASR_WORKERS
+              value: "1"
+            - name: ASR_MAX_QUEUE
+              value: "4"
+            - name: ASR_QUEUE_TIMEOUT_MS
+              value: "10000"
+            - name: ASR_INFERENCE_TIMEOUT_MS
+              value: "120000"
+          volumeMounts:
+            - name: models
+              mountPath: /models
+              readOnly: true
+          startupProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 3
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: "2"
+              memory: 2Gi
+            limits:
+              cpu: "4"
+              memory: 4Gi
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: ai-hub-asr-models

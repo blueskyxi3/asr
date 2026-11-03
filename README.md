@@ -1,12 +1,19 @@
-# AI Hub ASR
+# ASR
 
 完整独立的语音转文字与浏览器语音控制子项目。使用 SenseVoiceSmall INT8、Silero VAD 和 sherpa-onnx，在 Linux amd64/arm64 CPU 上运行。支持普通话、粤语、英语、日语、韩语及自动识别；录音停止后返回整段文字。0.2.0 增加浏览器本地 KWS 唤醒、VAD 分段与退出口令匹配 SDK。
 
-此目录可独立复制、安装、构建、测试和部署，不依赖 AI Hub、Agent SDK、数据库或 Redis。模型在常驻子进程中运行，HTTP 主进程负责认证、输入校验、排队及取消。源码与 Agent 的 npm workspaces、process 安装包相互独立。
+本项目独立安装、构建、测试和部署，不依赖 AI Hub、Agent SDK、数据库或 Redis。模型在常驻子进程中运行，HTTP 主进程负责认证、输入校验、排队及取消。源码与 Agent 的 npm workspaces、process 安装包相互独立。
+
+仓库：[blueskyxi3/asr](https://github.com/blueskyxi3/asr)。先克隆并进入仓库根目录：
+
+```bash
+git clone https://github.com/blueskyxi3/asr.git
+cd asr
+```
 
 ## Docker Compose 启动
 
-以下命令均在 `asr/` 目录执行。
+以下命令均在本仓库根目录执行。
 
 1. `cp .env.example .env`，使用 `openssl rand -hex 32` 生成服务 Token 并填入 `.env` 的 `ASR_API_KEY`。该 Token 只用于主进程到 ASR 的渠道认证，不复用用户 Key 或 Agent 插件配对密钥。
 2. 构建和显式准备模型：
@@ -28,6 +35,10 @@ curl -f http://127.0.0.1:18080/readyz
 ```
 
 模型准备容器可写模型卷；运行容器以非 root 身份只读挂载该卷。转写请求不下载模型。文件缺失或校验失败时，`/healthz` 仍报告进程存活，`/readyz` 和转写返回 503；显式准备后重启服务。
+
+## Kubernetes 启动（Deployment，单副本）
+
+安装清单与步骤见 [k8s/README.md](k8s/README.md)。使用 `replicas: 1` 的 Deployment、内网 Service 和持久模型 PVC；initContainer 准备并校验 ASR 与唤醒模型，服务容器只读挂载。服务 Token 和可选模块配对密钥通过 Kubernetes Secret 注入。
 
 ## 独立 Node 运行
 
@@ -134,7 +145,7 @@ HTTP 上传/连接超时 150 秒。FIFO 有界队列不使用数据库；排队�
 
 AI Hub 使用现有渠道绑定，失败不自动上传其他供应商。ASR 不接收用户 Cookie、个人 Key 或聊天历史；Agent 停用不会终止独立 ASR 服务，ASR 故障也不阻断普通文本聊天。
 
-完整交互与验收记录见主仓库 `.req/agent/asr-integration.md`。
+完整交互与验收记录见 [AI Hub 集成文档](https://github.com/blueskyxi3/ai-hub/blob/main/.req/agent/asr-integration.md)。
 
 ## 测试与性能
 
