@@ -23,8 +23,12 @@ export function createVoiceController({ assetBase, settings, onEvent }) {
     async start() {
       if (disposed || worker) return;
       const version = ++generation;
-      let stage = 'capabilities';
+      let stage = 'browser', loadingTimer;
       try {
+        if (!globalThis.isSecureContext) throw new Error('insecure');
+        if (!globalThis.crypto?.subtle || !navigator.mediaDevices?.getUserMedia) throw new Error('engine');
+        loadingTimer = setTimeout(() => lifetime.abort(new Error('timeout')), 120000);
+        stage = 'capabilities';
         emit({ type: 'loading' });
         const response = await fetch(`${assetBase}/../api/v1/voice/capabilities`, { credentials: 'include', signal: lifetime.signal });
         if (!response.ok) throw new Error('resource');
@@ -33,7 +37,14 @@ export function createVoiceController({ assetBase, settings, onEvent }) {
         const chunk = settings.wake_chunk_ms === 320 ? 16 : 8;
         stage = 'resources';
         const needed = manifest.files.filter((file) => !/chunk-/.test(file.name) || file.name.includes(`chunk-${chunk}-`));
-        const files = await Promise.all(needed.map(async (file) => ({ name: file.name, bytes: await checkedFile(assetBase, file, lifetime.signal) })));
+        const total = needed.reduce((sum, file) => sum + file.bytes, 0); let loaded = 0;
+        emit({ type: 'loading', loaded, total });
+        const files = await Promise.all(needed.map(async (file) => {
+          const bytes = await checkedFile(assetBase, file, lifetime.signal);
+          loaded += bytes.byteLength; emit({ type: 'loading', loaded, total });
+          return { name: file.name, bytes };
+        }));
+        clearTimeout(loadingTimer);
         if (disposed || version !== generation) return;
         const text = (name) => new TextDecoder().decode(files.find((file) => file.name === name).bytes);
         stage = 'keywords';
@@ -75,7 +86,11 @@ export function createVoiceController({ assetBase, settings, onEvent }) {
         };
         for (const track of media.getTracks()) track.addEventListener('ended', () => { if (!disposed) { emit({ type: 'error', code: 'microphone' }); controller.dispose(); } });
         source.connect(node); node.connect(context.destination); emit({ type: 'standby' });
-      } catch (error) { emit({ type: 'error', code: error?.name === 'NotAllowedError' ? 'permission' : 'engine', stage }); await controller.dispose(); }
+      } catch (error) {
+        const code = error?.name === 'NotAllowedError' ? 'permission' : error?.message === 'insecure' ? 'insecure' :
+          lifetime.signal.reason?.message === 'timeout' ? 'timeout' : 'engine';
+        emit({ type: 'error', code, stage }); await controller.dispose();
+      } finally { clearTimeout(loadingTimer); }
     },
     mode(mode) { if (ready && !disposed) worker.postMessage({ type: 'mode', mode }); },
     async dispose() {

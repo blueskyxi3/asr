@@ -9,13 +9,13 @@
 `deployment.yaml` 的 initContainer 和服务容器均使用：
 
 ```text
-ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.0.1
+ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.0.2
 ```
 
 安装前确保这个镜像已推送且集群可拉取；使用其他仓库时同时修改两处 `image`。需要自行构建时：
 
 ```bash
-export ASR_IMAGE=ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.0.1
+export ASR_IMAGE=ctt-repository-cn-guangzhou.cr.volces.com/compute-power-zone/ai-hub-asr:0.0.2
 docker buildx build --platform linux/amd64,linux/arm64 -t "$ASR_IMAGE" --push .
 ```
 

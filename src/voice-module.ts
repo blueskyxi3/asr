@@ -1,11 +1,13 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { extname, join } from "node:path";
+import { promisify } from "node:util";
+import { gzip } from "node:zlib";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { AsrError } from "./errors.js";
 import { browserDirectory, voiceFilesReady, voiceLock } from "./voice-assets.js";
 
-export const voiceManifest = { id: "asr", name: "本地语音服务", version: "0.0.1", sdk_version: 2,
+export const voiceManifest = { id: "asr", name: "本地语音服务", version: "0.0.2", sdk_version: 2,
   extensions: ["assistant.voice.control"], entry: "/assets/plugin.js", backend: "asr" };
 const equal = (left: string, right: string) => { const a = Buffer.from(left), b = Buffer.from(right); return a.length === b.length && timingSafeEqual(a, b); };
 export function isVoiceRoute(url: string): boolean { return /^\/(assets\/|internal\/|(?:api\/)?v1\/voice\/)/.test(url); }
@@ -41,7 +43,16 @@ export async function registerVoiceModule(app: FastifyInstance, modelDir: string
     try {
       const file = model ? join(modelDir, "voice", name) : new URL(name, browserDirectory);
       const data = await readFile(file);
-      return reply.type(({ ".js": "text/javascript", ".wasm": "application/wasm", ".txt": "text/plain" } as Record<string, string>)[extname(name)] || "application/octet-stream").send(data);
+      reply.type(({ ".js": "text/javascript", ".wasm": "application/wasm", ".txt": "text/plain" } as Record<string, string>)[extname(name)] || "application/octet-stream");
+      reply.header("Vary", "Accept-Encoding");
+      const acceptsGzip = String(request.headers["accept-encoding"] || "").split(",").some(entry => {
+        const [coding, ...parameters] = entry.trim().split(";");
+        return coding?.trim().toLowerCase() === "gzip" && !parameters.some(parameter => /^q\s*=\s*0(?:\.0*)?$/i.test(parameter.trim()));
+      });
+      if (acceptsGzip && data.length >= 1024) {
+        return reply.header("Content-Encoding", "gzip").send(await promisify(gzip)(data));
+      }
+      return reply.send(data);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") throw new AsrError("not_ready", "Prepare voice resources and restart the service", 503);
       throw error;

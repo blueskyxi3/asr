@@ -2,7 +2,7 @@
   "manifest": {
     "id": "asr",
     "name": "本地语音服务",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "sdk_version": 2,
     "extensions": ["assistant.voice.control"],
     "entry": "/assets/plugin.js",
